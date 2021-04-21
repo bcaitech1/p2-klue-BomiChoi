@@ -6,6 +6,7 @@ from sklearn.metrics import accuracy_score
 from transformers import AutoTokenizer, Trainer, TrainingArguments, BertConfig, ElectraConfig, XLMRobertaConfig, BertForSequenceClassification, ElectraForSequenceClassification, XLMRobertaForSequenceClassification
 from tokenization_kobert import KoBertTokenizer
 from load_data import *
+from argument import get_args
 # from catalyst.data.sampler import BalanceClassSampler
 
 # 평가를 위한 metrics function.
@@ -43,8 +44,10 @@ def train(args):
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
   # load dataset
+  # root = '/opt/ml'
+  root = args.root
   # train_dataset = load_data("/opt/ml/input/data/train/train.tsv")
-  train_dataset = load_data("/content/drive/MyDrive/Boostcamp/Stage2_KLUE/input/data/train/train.tsv")
+  train_dataset = load_data(root+"/input/data/train/train.tsv", root)
   #dev_dataset = load_data("./dataset/train/dev.tsv")
   train_label = train_dataset['label'].values
   #dev_label = dev_dataset['label'].values
@@ -111,10 +114,13 @@ def train(args):
   )
 
   # train model
+  print('Training start')
   trainer.train()
+  print('Training finished!')
 
-def main():
-  train()
+def main(args):
+  train(args)
 
 if __name__ == '__main__':
-  main()
+  args = get_args()
+  main(args)

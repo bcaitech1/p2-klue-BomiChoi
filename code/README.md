@@ -1,6 +1,10 @@
 # Pstage_03_KLUE_Relation_extraction
 
 ### training
+* python run.py -c config.json
+
+<!-- 
+### training
 * python train.py
 
 ### inference
@@ -8,4 +12,5 @@
 * ex) python inference.py --model_dir=./results/checkpoint-500
 
 ### evaluation
-* python eval_acc.py
+* python eval_acc.py 
+-->

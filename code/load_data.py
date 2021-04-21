@@ -2,6 +2,8 @@ import pickle as pickle
 import os
 import pandas as pd
 import torch
+from pororo import Pororo
+
 
 # Dataset 구성.
 class RE_Dataset(torch.utils.data.Dataset):
@@ -30,9 +32,9 @@ def preprocessing_dataset(dataset, label_type):
   return out_dataset
 
 # tsv 파일을 불러옵니다.
-def load_data(dataset_dir):
+def load_data(dataset_dir, root):
   # load label_type, classes
-  with open('/opt/ml/input/data/label_type.pkl', 'rb') as f:
+  with open(root+'/input/data/label_type.pkl', 'rb') as f:
     label_type = pickle.load(f)
   # load dataset
   dataset = pd.read_csv(dataset_dir, delimiter='\t', header=None)
@@ -46,10 +48,16 @@ def load_data(dataset_dir):
 # baseline code에서는 2가지 부분을 활용했습니다.
 def tokenized_dataset(dataset, tokenizer):
   concat_entity = []
+  # ner = Pororo(task='ner', lang='ko')
+  # tokenizer.add_special_tokens({'additional_special_tokens':["[E1]","[E2]","[TYPE]"})
+
   for e01, e02 in zip(dataset['entity_01'], dataset['entity_02']):
     temp = ''
     temp = e01 + '[SEP]' + e02
     concat_entity.append(temp)
+    # ner_01 = '[TYPE]'+ner(e01)[0][1].lower()+'[TYPE]'
+    # ner_02 = '[TYPE]'+ner(e02)[0][1].lower()+'[TYPE]'
+
   tokenized_sentences = tokenizer(
       concat_entity,
       list(dataset['sentence']),
@@ -59,4 +67,5 @@ def tokenized_dataset(dataset, tokenizer):
       max_length=160,
       add_special_tokens=True,
       )
+  print(tokenized_sentences[:10])
   return tokenized_sentences
