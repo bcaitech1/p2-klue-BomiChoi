@@ -19,6 +19,21 @@ class RE_Dataset(torch.utils.data.Dataset):
   def __len__(self):
     return len(self.labels)
 
+
+def add_entity_tokens(sentence, a1, a2, b1, b2):
+    new_sentence = None
+    ner = Pororo(task="ner", lang="ko")
+    
+    e1, e2 = sentence[a1:a2+1], sentence[b1:b2+1]
+    n1, n2 = Counter([e[1] for e in ner(e1)]).most_common(1)[0][0], Counter([e[1] for e in ner(e2)]).most_common(1)[0][0]
+    ner1, ner2 = "[T1]" + n1 + "[T1]", "[T2]" + n2 + "[T2]"
+    if a1 < b1:
+        new_sentence = sentence[:b1] + "[E1]" + ner1 + sentence[b1:b2+1] + "[E1]" + sentence[b2+1:a1] + "[E2]" + ner2 + sentence[a1:a2+1] + "[E2]" + sentence[a2+1:]
+    else:
+        new_sentence = sentence[:a1] + "[E2]" + ner2 + sentence[a1:a2+1] + "[E2]" + sentence[a2+1:b1] + "[E1]" + ner1 + sentence[b1:b2+1] + "[E1]" + sentence[b2+1:]
+    return new_sentence
+
+
 # 처음 불러온 tsv 파일을 원하는 형태의 DataFrame으로 변경 시켜줍니다.
 # 변경한 DataFrame 형태는 baseline code description 이미지를 참고해주세요.
 def preprocessing_dataset(dataset, label_type):
@@ -48,19 +63,17 @@ def load_data(dataset_dir, root):
 # baseline code에서는 2가지 부분을 활용했습니다.
 def tokenized_dataset(dataset, tokenizer):
   concat_entity = []
-  # ner = Pororo(task='ner', lang='ko')
-  # tokenizer.add_special_tokens({'additional_special_tokens':["[E1]","[E2]","[TYPE]"})
+  ner = Pororo(task='ner', lang='ko')
+  tokenizer.add_special_tokens({'additional_special_tokens':["[E1]", "[E2]", "[T1]", "[T2]"]})
 
-  for e01, e02 in zip(dataset['entity_01'], dataset['entity_02']):
-    temp = ''
-    temp = e01 + '[SEP]' + e02
+  for e01, e02, s1, e1, s2, e2, sen in zip(dataset['entity_01'], dataset['entity_02'], dataset['entity_01_start'], dataset['entity_01_end'], dataset['entity_02_start'], dataset['entity_02_end'], dataset['sentence']):
+    # temp = e01 + '[SEP]' + e02
+    temp = add_entity_tokens(sen, s1, e1, s2, e2)
     concat_entity.append(temp)
-    # ner_01 = '[TYPE]'+ner(e01)[0][1].lower()+'[TYPE]'
-    # ner_02 = '[TYPE]'+ner(e02)[0][1].lower()+'[TYPE]'
 
   tokenized_sentences = tokenizer(
       concat_entity,
-      list(dataset['sentence']),
+      # list(dataset['sentence']),
       return_tensors="pt",
       padding=True,
       truncation=True,

@@ -1,20 +1,11 @@
 from transformers import AutoTokenizer, Trainer, TrainingArguments, BertForSequenceClassification, ElectraForSequenceClassification, XLMRobertaForSequenceClassification
 from torch.utils.data import DataLoader
-<<<<<<< HEAD
-from load_data import *
-import pandas as pd
-import torch
-import pickle as pickle
-import numpy as np
-import argparse
-=======
 import pandas as pd
 import torch
 import pickle as pickle
 import numpy as numpy
 from load_data import *
 from argument import get_args
->>>>>>> b63d148b02f7db386f213180070535e4e675048c
 
 def inference(model, tokenized_sent, device):
   dataloader = DataLoader(tokenized_sent, batch_size=40, shuffle=False)
@@ -36,13 +27,8 @@ def inference(model, tokenized_sent, device):
   
   return np.array(output_pred).flatten()
 
-<<<<<<< HEAD
-def load_test_dataset(dataset_dir, tokenizer):
-  test_dataset = load_data(dataset_dir)
-=======
-def load_test_dataset(oot, tokenizer):
+def load_test_dataset(root, tokenizer):
   test_dataset = load_data(root+"/input/data/test/test.tsv", root)
->>>>>>> b63d148b02f7db386f213180070535e4e675048c
   test_label = test_dataset['label'].values
   # tokenizing dataset
   tokenized_test = tokenized_dataset(test_dataset, tokenizer)
