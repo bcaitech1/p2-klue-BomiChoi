@@ -46,8 +46,8 @@ def train(args):
   # load dataset
   # root = '/opt/ml'
   root = args.root
-  # train_dataset = load_data("/opt/ml/input/data/train/train.tsv")
   train_dataset = load_data(root+"/input/data/train/train.tsv", root)
+  # train_dataset = load_data(root+"/input/data/train/ner_train_ver2.tsv", root)
   #dev_dataset = load_data("./dataset/train/dev.tsv")
   train_label = train_dataset['label'].values
   #dev_label = dev_dataset['label'].values
@@ -79,6 +79,7 @@ def train(args):
     roberta_config = XLMRobertaConfig.from_pretrained(MODEL_NAME)
     roberta_config.num_labels = 42
     model = XLMRobertaForSequenceClassification.from_pretrained(MODEL_NAME,config=roberta_config)
+  model.resize_token_embeddings(len(tokenizer))
   model.parameters
   model.to(device)
   
@@ -102,7 +103,8 @@ def train(args):
                                 # `steps`: Evaluate every `eval_steps`.
                                 # `epoch`: Evaluate every end of epoch.
     #eval_steps = 500,            # evaluation step.
-    # save_strategy='epoch'
+    # save_strategy='epoch',
+    label_smoothing_factor=0.5
   )
 
   trainer = Trainer(
