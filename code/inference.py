@@ -26,20 +26,20 @@ def inference(model, tokenized_sent, device):
               input_ids=data['input_ids'].to(device),
               attention_mask=data['attention_mask'].to(device)
           )
-    # logits = outputs[0]
-    # logits = logits.detach().cpu().numpy()
-    # result = np.argmax(logits, axis=-1)
-    # output_pred.append(result)
+    logits = outputs[0]
+    logits = logits.detach().cpu().numpy()
+    result = np.argmax(logits, axis=-1)
+    output_pred.append(result)
 
-    logits = []
-    predictions = []
-    _logits = outputs[0].detach().cpu().numpy()      
-    _predictions = np.argmax(_logits, axis=-1)
-    logits.append(_logits)
-    predictions.extend(_predictions.ravel())
+    # logits = []
+    # predictions = []
+    # _logits = outputs[0].detach().cpu().numpy()      
+    # _predictions = np.argmax(_logits, axis=-1)
+    # logits.append(_logits)
+    # predictions.extend(_predictions.ravel())
   
-  # return np.array(output_pred).flatten()
-  return np.concatenate(logits), np.array(predictions)
+  return np.array(output_pred).flatten()
+  # return np.concatenate(logits), np.array(predictions)
 
 def load_test_dataset(root, tokenizer):
   test_dataset = load_data(root+"/input/data/test/test.tsv", root)
@@ -77,15 +77,15 @@ def main(args):
   test_dataset = RE_Dataset(test_dataset ,test_label)
 
   # predict answer
-  # pred_answer = inference(model, test_dataset, device)
-  logits, predictions = inference(model, test_dataset, device)
+  pred_answer = inference(model, test_dataset, device)
+  # logits, predictions = inference(model, test_dataset, device)
 
   # make csv file with predicted answer
   # 아래 directory와 columns의 형태는 지켜주시기 바랍니다.
-  # output = pd.DataFrame(pred_answer, columns=['pred'])
-  output = pd.DataFrame(predictions, columns=['pred'])
+  output = pd.DataFrame(pred_answer, columns=['pred'])
+  # output = pd.DataFrame(predictions, columns=['pred'])
   output.to_csv(f'./results/{args.id}/submission{args.id}.csv', index=False)
-  np.save(f'./results/{args.id}/logits{args.id}.npy', logits)
+  # np.save(f'./results/{args.id}/logits{args.id}.npy', logits)
   print('File saved')
 
 if __name__ == '__main__':
