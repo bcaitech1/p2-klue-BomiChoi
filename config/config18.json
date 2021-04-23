@@ -1,0 +1,7 @@
+{
+    "id" : 18,     
+    "model_name" : "xlm-roberta-large",
+    "model_type" : "roberta",
+    "checkpoint" : 2200,
+    "root" : "/opt/ml"
+}
